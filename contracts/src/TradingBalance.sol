@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// TODO: remove this file if everything is running fine
 pragma solidity ^0.8.19;
 
 contract TradingBalance {

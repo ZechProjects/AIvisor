@@ -1,22 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
-// TODO: remove this file if everything is running fine
 
 import {Script} from "forge-std/Script.sol";
-import {TradingBalance} from "../src/TradingBalance.sol";
+import {TradingGame} from "../src/TradingGame.sol";
 
-contract DeployTradingBalance is Script {
-    function run() public returns (TradingBalance) {
+contract DeployTradingGame is Script {
+    function run() public returns (TradingGame) {
         // Begin recording transactions for deployment
         vm.startBroadcast();
 
         // Deploy the contract
-        TradingBalance tradingBalance = new TradingBalance();
+        TradingGame tradingGame = new TradingGame();
 
         // Stop recording transactions
         vm.stopBroadcast();
 
         // Return the deployed contract
-        return tradingBalance;
+        return tradingGame;
     }
 }

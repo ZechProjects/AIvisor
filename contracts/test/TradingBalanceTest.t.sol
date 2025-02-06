@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
+// TODO: remove this file if everything is running fine
 
 import {Test, console2} from "forge-std/Test.sol";
 import {TradingBalance} from "../src/TradingBalance.sol";
