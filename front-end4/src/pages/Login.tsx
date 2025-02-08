@@ -11,6 +11,7 @@ const Login = () => {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [resetRequestSent, setResetRequestSent] = useState(false)
   const navigate = useNavigate()
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -31,6 +32,26 @@ const Login = () => {
     }
   }
 
+  const handleForgotPassword = async () => {
+    if (!username) {
+      setError("Please enter your username first")
+      return
+    }
+
+    setIsLoading(true)
+    setError("")
+
+    try {
+      await authService.requestPasswordReset(username)
+      setResetRequestSent(true)
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>
+      setError(axiosError.response?.data?.message || "Failed to send password reset request")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="flex justify-center items-center h-[calc(100vh-4rem)]">
       <Card className="w-[350px]">
@@ -42,6 +63,11 @@ const Login = () => {
           <CardContent>
             <div className="grid w-full items-center gap-4">
               {error && <div className="text-red-500 text-sm">{error}</div>}
+              {resetRequestSent && (
+                <div className="text-green-500 text-sm">
+                  Password reset instructions have been sent to your email
+                </div>
+              )}
               <div className="flex flex-col space-y-1.5">
                 <Input
                   id="username"
@@ -61,9 +87,18 @@ const Login = () => {
               </div>
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex flex-col gap-2">
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Logging in..." : "Login"}
+            </Button>
+            <Button
+              type="button"
+              variant="link"
+              className="w-full"
+              onClick={handleForgotPassword}
+              disabled={isLoading}
+            >
+              Forgot Password?
             </Button>
           </CardFooter>
         </form>

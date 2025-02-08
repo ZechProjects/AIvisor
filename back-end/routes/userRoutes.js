@@ -412,15 +412,21 @@ router.post('/reset-password', async (req, res) => {
 router.post('/register', async (req, res) => {
   try {
     const { username, password } = req.body;
+    console.log(req)
 
     // Check if user already exists
+    console.log(418)
     const existingUser = await User.findOne({ username });
+    console.log(419, existingUser)
     if (existingUser) {
-      return res.status(400).json({ error: 'Username already exists' });
+        console.log(420)
+        return res.status(400).json({ error: 'Username already exists' });
     }
-
+    console.log(422)
     // Hash password
+    console.log(421)
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log(423)
 
     // Create new user
     const user = new User({
@@ -429,9 +435,9 @@ router.post('/register', async (req, res) => {
       portfolio: {},
       usdtBalance: 0
     });
-
+    console.log(433)
     await user.save();
-
+    console.log(435)
     // Generate JWT token
     const token = jwt.sign(
       { userId: user._id },
