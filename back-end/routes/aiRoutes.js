@@ -1,6 +1,8 @@
 const express = require('express');
 const AiAgent = require('../models/AiAgent');
 const router = express.Router();
+var request = require('request');
+const rp = require('request-promise');
 
 /**
  * @swagger
@@ -32,8 +34,8 @@ const router = express.Router();
  *         description: Server error
  */
 router.get('/agents', async (req, res) => {
-  const agents = await AiAgent.find();
-  res.json(agents);
+    const agents = await AiAgent.find();
+    res.json(agents);
 });
 
 /**
@@ -75,26 +77,43 @@ router.get('/agents', async (req, res) => {
  *         description: Server error
  */
 router.post('/suggest', async (req, res) => {
-  try {
-    const { prompt, agentId } = req.body;
-    
-    if (!prompt || !agentId) {
-      return res.status(400).json({ error: 'Prompt and agentId are required' });
-    }
+    try {
+        const {prompt, agentId} = req.body;
 
-    const agent = await AiAgent.findById(agentId);
-    if (!agent) {
-      return res.status(404).json({ error: 'AI agent not found' });
-    }
+        if (!prompt || !agentId) {
+            return res.status(400).json({error: 'Prompt and agentId are required'});
+        }
 
-    // TODO: Implement actual AI suggestion logic here
-    const suggestion = `Sample suggestion for prompt: ${prompt}`;
-    
-    res.json({ suggestion });
-  } catch (error) {
-    console.error('Error getting AI suggestion:', error);
-    res.status(500).json({ error: 'Failed to get AI suggestion' });
-  }
+//    const agent = await AiAgent.findById(11);
+//    if (!agent) {
+//      return res.status(404).json({ error: 'AI agent not found' });
+//    }
+
+        // TODO: Implement actual AI suggestion logic here
+        var suggestion = `Sample suggestion for prompt: ${prompt}, Suggestion: `;
+        rp({
+            method: 'POST',
+            uri: 'http://localhost:3000/b850bc30-45f8-0041-a00a-83df46d8555d/message',
+            body: {
+                "text": prompt,
+                "userId": "user",
+                "userName": "User"
+            },
+            json: true
+        })
+            .then(function (body) {
+                console.log(body);
+                suggestion += JSON.stringify(body);
+                res.json({suggestion});
+
+            })
+            .catch(function (error) {
+                console.error(error);
+            });
+    } catch (error) {
+        console.error('Error getting AI suggestion:', error);
+        res.status(500).json({error: 'Failed to get AI suggestion'});
+    }
 });
 
 module.exports = router;
