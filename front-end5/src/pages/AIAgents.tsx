@@ -35,7 +35,7 @@ const AIAgents = () => {
     if (!selectedAgent) return
 
     try {
-      const response = await aiService.getSuggestion({ prompt, agentId: selectedAgent })
+      const response = await aiService.getSuggestion({ prompt, agentName: selectedAgent })
       setSuggestion(response.data.suggestion)
     } catch (error) {
       console.error("Error getting AI suggestion:", error)

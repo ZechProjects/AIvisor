@@ -8,7 +8,7 @@ interface AIAgent {
 
 interface AISuggestionRequest {
   prompt: string;
-  agentId: string;
+  agentName: string;
 }
 
 interface AISuggestionResponse {
@@ -17,10 +17,11 @@ interface AISuggestionResponse {
 
 export const aiService = {
   getAgents: () => {
-    return axios.get<AIAgent[]>('/ai/agents');
+    return axios.get<AIAgent[]>('/ai-agents');
   },
 
   getSuggestion: (data: AISuggestionRequest) => {
-    return axios.post<AISuggestionResponse>('/ai/suggest', data);
+    // NOTE: hardcoding the passcode
+    return axios.post<AISuggestionResponse>(`/agent-responses/${data.agentName}/12345`, data);
   },
 };

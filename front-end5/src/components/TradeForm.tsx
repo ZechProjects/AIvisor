@@ -10,15 +10,23 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Progress } from "@/components/ui/progress"
 import { coingeckoService } from "@/services/coingecko"
 import { getCryptoId } from "@/constants/cryptoIds"
+import { aiService } from "@/api/ai"
 
 const SUPPORTED_CRYPTOS = cryptoIds
 
 interface TradeFormProps {
   selectedCrypto?: string;
   currentPrice?: number;
+  holdings: number;
 }
 
-export const TradeForm = ({ selectedCrypto, currentPrice }: TradeFormProps) => {
+interface AgentResponse {
+  type: "BUY" | "SELL";
+  amount: number;
+  reasoning: string;
+}
+
+export const TradeForm = ({ selectedCrypto, currentPrice, holdings }: TradeFormProps) => {
   const { toast } = useToast()
   const [crypto, setCrypto] = useState(selectedCrypto || "")
   const [type, setType] = useState<"BUY" | "SELL">("BUY")
@@ -27,6 +35,13 @@ export const TradeForm = ({ selectedCrypto, currentPrice }: TradeFormProps) => {
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [confirmationTimer, setConfirmationTimer] = useState(100)
   const [latestPrice, setLatestPrice] = useState(currentPrice || 0)
+  const [showAiSuggestion, setShowAiSuggestion] = useState(false)
+  const [aiSuggestion, setAiSuggestion] = useState<AgentResponse | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [userDecision, setUserDecision] = useState<{
+    agree: boolean;
+    accept: boolean;
+  } | null>(null)
 
   // Update form when selectedCrypto or currentPrice changes
   useEffect(() => {
@@ -134,6 +149,37 @@ export const TradeForm = ({ selectedCrypto, currentPrice }: TradeFormProps) => {
     }
   }
 
+  const handleAiSuggest = async () => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response: AgentResponse | any = await aiService.getSuggestion({
+        prompt: `I have ${holdings} amount of ${crypto}. How much Should I Buy or Sell and why?`,
+        agentName: 'buy-sell-agent',
+      })
+      
+      setAiSuggestion(response)
+      setShowAiSuggestion(true)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      toast({
+        title: "AI Suggestion Failed",
+        description: "Unable to get AI trading suggestion",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleAiDecision = (agree: boolean, accept: boolean) => {
+    setUserDecision({ agree, accept })
+    setShowAiSuggestion(false)
+
+    if (accept && aiSuggestion) {
+      setType(aiSuggestion.type)
+      setAmount(aiSuggestion.amount.toString())
+      setShowConfirmation(true)
+    }
+  }
+
   return (
     <>
       <Card className="sticky top-4 bg-white">
@@ -179,12 +225,57 @@ export const TradeForm = ({ selectedCrypto, currentPrice }: TradeFormProps) => {
               disabled
             />
 
+            <Button
+              type="button"
+              onClick={handleAiSuggest}
+              disabled={!selectedCrypto || !currentPrice}
+              className="w-full mb-2"
+            >
+              Get AI Suggestion
+            </Button>
+
             <Button type="submit" className="w-full">
               Execute Trade
             </Button>
           </form>
         </CardContent>
       </Card>
+
+      <Dialog open={showAiSuggestion} onOpenChange={setShowAiSuggestion}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle>AI Trading Suggestion</DialogTitle>
+            <DialogDescription>
+              {aiSuggestion && (
+                <div className="mt-4 space-y-2">
+                  <p>Recommended Action: {aiSuggestion.type}</p>
+                  <p>Amount: {aiSuggestion.amount} {crypto}</p>
+                  <p className="font-semibold">Reasoning:</p>
+                  <p>{aiSuggestion.reasoning}</p>
+                </div>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col space-y-2">
+            <div className="flex space-x-2">
+              <Button onClick={() => handleAiDecision(true, true)}>
+                Agree & Accept
+              </Button>
+              <Button onClick={() => handleAiDecision(false, true)}>
+                Don't Agree but Accept
+              </Button>
+            </div>
+            <div className="flex space-x-2">
+              <Button variant="outline" onClick={() => handleAiDecision(true, false)}>
+                Agree but Don't Accept
+              </Button>
+              <Button variant="outline" onClick={() => handleAiDecision(false, false)}>
+                Don't Agree & Don't Accept
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
         <DialogContent className="bg-white">
