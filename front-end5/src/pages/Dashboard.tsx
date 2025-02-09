@@ -1,61 +1,90 @@
 import { useState, useEffect } from "react"
+import { CryptoChart } from "@/components/CryptoChart"
+import { LearningModule } from "@/components/LearningModule"
+import { coingeckoService } from "@/services/coingecko"
+import { useApp } from "@/contexts/AppContext"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Portfolio } from "@/api/types"
-import { portfolioService } from "@/api/portfolio"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+interface CryptoPrice {
+  id: string;
+  symbol: string;
+  current_price: number;
+  price_change_percentage_24h: number;
+  sparkline_in_7d: {
+    price: number[];
+  };
+}
+
 
 const Dashboard = () => {
-  const [portfolios, setPortfolios] = useState<Portfolio[]>([])
-  const [usdtBalance, setUsdtBalance] = useState(0)
-  const [totalValue, setTotalValue] = useState(0)
+  const { portfolio, totalValue } = useApp()
+  const [priceData, setPriceData] = useState<CryptoPrice[]>([])
 
   useEffect(() => {
-    const fetchPortfolio = async () => {
-      const userId = localStorage.getItem("userId")
-      if (!userId) return
-
-      try {
-        const response = await portfolioService.getPortfolios(userId)
-        setPortfolios(response.data.portfolio)
-        setUsdtBalance(response.data.usdtBalance)
-        setTotalValue(response.data.totalValue)
-      } catch (error) {
-        console.error("Error fetching portfolio:", error)
-      }
+    const fetchPrices = async () => {
+      const cryptoIds = portfolio.map(p => p.crypto.toLowerCase())
+      const data = await coingeckoService.getPriceHistory(cryptoIds)
+      setPriceData(data)
     }
-
-    fetchPortfolio()
-  }, [])
+    fetchPrices()
+  }, [portfolio])
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-3xl font-bold">Dashboard</h1>
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Portfolio</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div>
-              <p className="text-sm text-muted-foreground">USDT Balance</p>
-              <p className="text-xl">${usdtBalance.toFixed(2)}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Portfolio Value</p>
-              <p className="text-xl">${totalValue.toFixed(2)}</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {portfolios.map((portfolio) => (
-              <Card key={portfolio.crypto}>
-                <CardContent className="pt-6">
-                  <p className="text-lg font-semibold">{portfolio.crypto}</p>
-                  <p className="text-2xl">Quantity: {portfolio.amount}</p>
-                </CardContent>
-              </Card>
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold">Welcome to EiLearn</h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Portfolio Value</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">${totalValue.toFixed(2)}</p>
+          </CardContent>
+        </Card>
+        {/* Add more summary cards */}
+      </div>
+
+      <Tabs defaultValue="portfolio">
+        <TabsList>
+          <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+          <TabsTrigger value="learning">Learning</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="portfolio">
+          <div className="space-y-4">
+            {priceData.map(crypto => (
+              <CryptoChart
+                key={crypto.id}
+                data={crypto.sparkline_in_7d.price.map((price: number, index: number) => ({
+                  timestamp: Date.now() - (7 * 24 * 60 * 60 * 1000) + (index * 3600000),
+                  price,
+                }))}
+                title={`${crypto.symbol.toUpperCase()} Price History`}
+              />
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </TabsContent>
+
+        <TabsContent value="learning">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <LearningModule
+              title="Crypto Trading Basics"
+              description="Learn the fundamentals of cryptocurrency trading"
+              progress={30}
+              onStart={() => {/* Handle start */}}
+            />
+            <LearningModule
+              title="EigenLayer Fundamentals"
+              description="Understanding EigenLayer and its role in decentralization"
+              progress={0}
+              onStart={() => {/* Handle start */}}
+            />
+            {/* Add more learning modules */}
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
