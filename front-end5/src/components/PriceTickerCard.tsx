@@ -2,12 +2,19 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { coingeckoService } from "@/services/coingecko"
 
-interface PriceTickerProps {
+interface PriceTickerCardProps {
   cryptoId: string
   symbol: string
+  onPriceUpdate?: (price: number | null) => void
+  updateInterval?: number
 }
 
-export function PriceTickerCard({ cryptoId, symbol }: PriceTickerProps) {
+export const PriceTickerCard = ({ 
+  cryptoId, 
+  symbol, 
+  onPriceUpdate,
+  updateInterval = 30000
+}: PriceTickerCardProps) => {
   const [price, setPrice] = useState<number | null>(null)
   const [priceChange, setPriceChange] = useState<number>(0)
 
@@ -37,10 +44,26 @@ export function PriceTickerCard({ cryptoId, symbol }: PriceTickerProps) {
       }
     }
 
+    // Initial fetch
     fetchPrice()
-    const interval = setInterval(fetchPrice, 30000) // Update every 30 seconds
-    return () => clearInterval(interval)
-  }, [cryptoId, symbol])
+    
+    // Calculate initial delay based on updateInterval
+    const initialDelay = setTimeout(() => {
+      fetchPrice()
+      // Set up recurring interval after initial delay
+      const interval = setInterval(fetchPrice, updateInterval)
+      return () => clearInterval(interval)
+    }, updateInterval)
+
+    return () => clearTimeout(initialDelay)
+  }, [cryptoId, symbol, updateInterval])
+
+  useEffect(() => {
+    // When price updates
+    if (onPriceUpdate) {
+      onPriceUpdate(price)
+    }
+  }, [price, onPriceUpdate])
 
   return (
     <Card>

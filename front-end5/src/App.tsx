@@ -1,6 +1,5 @@
 import { Route, Routes } from "react-router-dom"
 import { ThemeProvider } from "./components/theme-provider"
-import { ProtectedRoute } from "./components/ProtectedRoute"
 import Navbar from "./components/navbar"
 import Home from "./pages/Home"
 import Login from "./pages/Login"
@@ -9,6 +8,7 @@ import Dashboard from "./pages/Dashboard"
 import AIAgents from "./pages/AIAgents"
 import Trade from "./pages/Trade"
 import Leaderboard from "./pages/Leaderboard"
+import { Toaster } from "@/components/ui/toaster"
 
 function App() {
   return (
@@ -23,37 +23,30 @@ function App() {
             <Route 
               path="/dashboard" 
               element={
-                <ProtectedRoute>
                   <Dashboard />
-                </ProtectedRoute>
               } 
             />
             <Route 
               path="/ai-agents" 
               element={
-                <ProtectedRoute>
                   <AIAgents />
-                </ProtectedRoute>
               } 
             />
             <Route 
               path="/trade" 
               element={
-                <ProtectedRoute>
                   <Trade />
-                </ProtectedRoute>
               } 
             />
             <Route 
               path="/leaderboard" 
               element={
-                <ProtectedRoute>
                   <Leaderboard />
-                </ProtectedRoute>
               } 
             />
           </Routes>
         </main>
+        <Toaster />
       </div>
     </ThemeProvider>
   )

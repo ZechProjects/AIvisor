@@ -52,6 +52,10 @@ const Login = () => {
     }
   }
 
+  const handleRegister = () => {
+    navigate("/register")
+  }
+
   return (
     <div className="flex justify-center items-center h-[calc(100vh-4rem)]">
       <Card className="w-[350px]">
@@ -99,6 +103,15 @@ const Login = () => {
               disabled={isLoading}
             >
               Forgot Password?
+            </Button>
+            <Button
+              type="button"
+              variant="link"
+              className="w-full"
+              onClick={handleRegister}
+              disabled={isLoading}
+            >
+              New User? Register
             </Button>
           </CardFooter>
         </form>
