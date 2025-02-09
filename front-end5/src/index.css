@@ -3,3 +3,39 @@
 @tailwind utilities;
 
 /* ... */
+
+@keyframes price-up {
+  from {
+    color: theme('colors.green.500');
+    transform: translateY(0);
+  }
+  50% {
+    color: theme('colors.green.500');
+    transform: translateY(-4px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes price-down {
+  from {
+    color: theme('colors.red.500');
+    transform: translateY(0);
+  }
+  50% {
+    color: theme('colors.red.500');
+    transform: translateY(4px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.price-up {
+  animation: price-up 1s ease;
+}
+
+.price-down {
+  animation: price-down 1s ease;
+}

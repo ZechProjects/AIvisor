@@ -3,7 +3,6 @@ const validateRequest = require('../middleware/validateRequest');
 
 const tradeValidators = {
     createTrade: [
-        body('tradeId').notEmpty().isString(),
         body('userId').notEmpty().isString(),
         body('crypto').notEmpty().isString(),
         body('type').isIn(['BUY', 'SELL']),

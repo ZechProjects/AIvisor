@@ -11,7 +11,6 @@ const auth = require('../middleware/auth');
  *     Trade:
  *       type: object
  *       required:
- *         - tradeId
  *         - userId
  *         - crypto
  *         - type

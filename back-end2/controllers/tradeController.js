@@ -1,13 +1,18 @@
 const Trade = require('../models/Trade');
+const { v4: uuidv4 } = require('uuid');
+const tradeService = require('../services/tradeService');
 
 const tradeController = {
     // Create new trade
     createTrade: async (req, res) => {
         try {
-            const { tradeId, userId, crypto, type, amount, price } = req.body;
+            const { userId, crypto, type, amount, price } = req.body;
+            
+            // Validate trade
+            await tradeService.validateTrade(userId, crypto, type, amount, price);
             
             const trade = new Trade({
-                tradeId,
+                tradeId: uuidv4(),
                 userId,
                 crypto,
                 type,
@@ -16,6 +21,9 @@ const tradeController = {
                 timestamp: new Date()
             });
 
+            // Update portfolio
+            await tradeService.updatePortfolio(userId, crypto, type, amount, price);
+            
             await trade.save();
             res.status(201).json({ success: true, data: trade });
         } catch (error) {
@@ -25,7 +33,7 @@ const tradeController = {
                     message: 'Trade with this tradeId already exists' 
                 });
             }
-            res.status(500).json({ success: false, message: error.message });
+            res.status(400).json({ success: false, message: error.message });
         }
     },
 

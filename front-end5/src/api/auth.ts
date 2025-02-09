@@ -22,7 +22,7 @@ export const authService = {
   },
 
   logout: () => {
-    return axios.post('/logout');
+    return axios.post('/auth/logout');
   },
 
   requestPasswordReset: (email: string) => {
