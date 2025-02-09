@@ -7,8 +7,11 @@ const sendEmail = require('../utils/sendEmail'); // You'll need to implement thi
 const authController = {
     register: async (req, res) => {
         try {
-            const { email, password, walletId, userId } = req.body;
+            const { email, password, walletId } = req.body;
             
+            // Generate a random userId
+            const userId = crypto.randomBytes(16).toString('hex');
+
             const user = new User({
                 email,
                 password,

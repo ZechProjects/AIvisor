@@ -20,6 +20,15 @@ const portfolioValidators = {
         param('userId').notEmpty().isString(),
         param('crypto').notEmpty().isString(),
         validateRequest
+    ],
+
+    getUserPortfolio: [
+        param('userId')
+            .notEmpty()
+            .withMessage('User ID is required')
+            .isString()
+            .withMessage('User ID must be a string'),
+        validateRequest
     ]
 };
 

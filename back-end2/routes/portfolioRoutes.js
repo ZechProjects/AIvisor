@@ -125,4 +125,51 @@ router.delete('/:userId/:crypto',
     portfolioController.deletePortfolio
 );
 
+/**
+ * @swagger
+ * /api/portfolio/user/{userId}:
+ *   get:
+ *     summary: Get user's portfolio with USDT balance
+ *     tags: [Portfolio]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User's unique identifier
+ *     responses:
+ *       200:
+ *         description: Portfolio retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     portfolio:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Portfolio'
+ *                     usdtBalance:
+ *                       type: number
+ *                     totalValue:
+ *                       type: number
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.get('/user/:userId', 
+    auth, 
+    portfolioValidators.getUserPortfolio, 
+    portfolioController.getUserPortfolio
+);
+
 module.exports = router; 

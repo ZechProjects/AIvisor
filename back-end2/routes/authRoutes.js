@@ -21,7 +21,6 @@ const auth = require('../middleware/auth');
  *               - email
  *               - password
  *               - walletId
- *               - userId
  *             properties:
  *               email:
  *                 type: string
@@ -30,8 +29,6 @@ const auth = require('../middleware/auth');
  *                 type: string
  *                 minLength: 8
  *               walletId:
- *                 type: string
- *               userId:
  *                 type: string
  *     responses:
  *       201:

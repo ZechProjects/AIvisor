@@ -2,7 +2,8 @@ require('dotenv').config({ path: '.env.test' });
 const mongoose = require('mongoose');
 
 process.env.JWT_SECRET = 'test-jwt-secret';
-process.env.MONGODB_TEST_URI = 'mongodb+srv://ssachin919:u0TnAB1sC75CHcYz@cluster0.ukpta.mongodb.net/aivisorTest';
+// todo: I have to read from .env file and save it to .env.test file
+process.env.MONGODB_TEST_URI = process.env.MONGODB_TEST_URI;
 process.env.NODE_ENV = 'test';
 
 // Global setup

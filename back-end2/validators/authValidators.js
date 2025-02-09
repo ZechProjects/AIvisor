@@ -40,19 +40,6 @@ const authValidators = {
                 return true;
             }),
 
-        body('userId')
-            .notEmpty()
-            .withMessage('User ID is required')
-            .isString()
-            .withMessage('User ID must be a string')
-            .custom(async (userId) => {
-                const existingUser = await User.findOne({ userId });
-                if (existingUser) {
-                    throw new Error('User ID already registered');
-                }
-                return true;
-            }),
-
         validateRequest
     ],
 
